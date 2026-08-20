@@ -16,6 +16,24 @@ javac --release 21 -d bin $(find src -name '*.java' -print)
 
 Java 21 ou une version plus récente est nécessaire. Le script d'installation ajoute **Ze-ui** au menu des applications Linux Mint avec son icône. Pour l'ajouter à la barre des tâches, ouvrez le menu, cherchez **Ze-ui**, puis choisissez **Ajouter aux favoris**.
 
+### Arch Linux et AUR
+
+Pour installer la version empaquetée depuis l'AUR :
+
+```bash
+paru -S assistant-linux
+```
+
+Le paquet installe automatiquement Java 21, `playerctl`, `xdg-utils` et le thème
+d'icônes. Spotify ou Spicetify restent optionnels et doivent être installés
+séparément selon la méthode disponible sur votre système.
+
+Pour construire le paquet localement depuis ce dépôt :
+
+```bash
+makepkg -si
+```
+
 ## Lancer
 
 ```bash

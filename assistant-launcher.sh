@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$SCRIPT_DIR" == "/usr/bin" && -d "/usr/lib/assistant-linux" ]]; then
+    PROJECT_DIR="/usr/lib/assistant-linux"
+else
+    PROJECT_DIR="$SCRIPT_DIR"
+fi
 JAVA_BIN="${JAVA_HOME:-}/bin/java"
 if [[ ! -x "$JAVA_BIN" ]]; then
     JAVA_BIN="$(command -v java)"

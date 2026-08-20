@@ -16,6 +16,8 @@ public final class MusicService {
     }
 
     public String playPause() {
+        if (!commandAvailable("playerctl")) return installHint();
+        if (run("playerctl", "status").isEmpty()) return play();
         return action("play-pause");
     }
 
