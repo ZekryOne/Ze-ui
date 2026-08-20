@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 
 public final class App {
     public static void main(String[] args) {
+        System.setProperty("sun.awt.X11.awtClassName", "Assistant");
         if (hasArgument(args, "--check")) {
             var engine = new AssistantEngine();
             System.out.println(engine.execute("help", question -> false));
@@ -13,6 +14,7 @@ public final class App {
             System.out.println(engine.execute("optimiser ram cpu", question -> false));
             System.out.println(engine.execute("music status", question -> false));
             System.out.println(engine.execute("music volume", question -> false));
+            System.out.println("Platform: " + engine.platformName());
             System.out.println(engine.execute("supprimer /tmp/assistant-test", question -> false));
             return;
         }

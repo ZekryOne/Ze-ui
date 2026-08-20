@@ -60,6 +60,7 @@ public final class AssistantEngine {
 
     public boolean startupEnabled() { return startup.isEnabled(); }
     public void setStartup(boolean enabled) throws Exception { startup.setEnabled(enabled); }
+    public String platformName() { return system.distribution().name(); }
 
     private String musicCommand(List<String> arguments) {
         if (arguments.isEmpty() || arguments.contains("status")) {
@@ -115,10 +116,13 @@ public final class AssistantEngine {
 
     private String install(ParsedCommand command, Predicate<String> confirm) throws Exception {
         String packageName = first(command);
-        String manager = command.arguments().contains("--flatpak") ? "flatpak" : "apt";
-        if (!confirm.test("Installer " + packageName + " avec " + manager + " (sudo requis) ?")) return "Installation annulée.";
-        if (manager.equals("flatpak")) new ProcessBuilder("flatpak", "install", "-y", packageName).start();
-        else new ProcessBuilder("sudo", "apt", "install", "-y", packageName).start();
+        boolean flatpak = command.arguments().contains("--flatpak");
+        String manager = flatpak ? "flatpak" : system.packageManager();
+        if (flatpak && !system.flatpakAvailable()) return "Flatpak n'est pas disponible sur cette distribution.";
+        if (!flatpak && manager.equals("inconnu")) return "Aucun gestionnaire de paquets compatible détecté.";
+        String privilege = flatpak ? "" : " (sudo requis)";
+        if (!confirm.test("Installer " + packageName + " avec " + manager + privilege + " ?")) return "Installation annulée.";
+        new ProcessBuilder(system.installCommand(packageName, flatpak)).start();
         return "Installation lancée : " + manager + " " + packageName;
     }
 

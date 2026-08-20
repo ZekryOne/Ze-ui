@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class SystemService {
@@ -67,10 +69,37 @@ public final class SystemService {
     }
 
     public String os() {
-        return "OS: " + read(Path.of("/etc/os-release")).lines()
-                .filter(line -> line.startsWith("PRETTY_NAME="))
-                .map(line -> line.substring("PRETTY_NAME=".length()).replace("\"", ""))
-                .findFirst().orElse("Linux");
+        return "OS: " + distribution().name();
+    }
+
+    public LinuxDistribution distribution() {
+        Map<String, String> values = new HashMap<>();
+        try (var lines = Files.lines(Path.of("/etc/os-release"))) {
+            lines.filter(line -> line.contains("=")).forEach(line -> {
+                int separator = line.indexOf('=');
+                values.put(line.substring(0, separator), line.substring(separator + 1).replace("\"", ""));
+            });
+        } catch (IOException ignored) { }
+        String id = values.getOrDefault("ID", "linux").toLowerCase();
+        String name = values.getOrDefault("PRETTY_NAME", "Linux");
+        return new LinuxDistribution(id, name, detectPackageManager(values.getOrDefault("ID_LIKE", "")));
+    }
+
+    public String packageManager() {
+        return distribution().packageManager();
+    }
+
+    public boolean flatpakAvailable() { return executable("flatpak"); }
+
+    public String[] installCommand(String packageName, boolean flatpak) {
+        if (flatpak && executable("flatpak")) return new String[] { "flatpak", "install", "-y", packageName };
+        return switch (packageManager()) {
+            case "apt" -> new String[] { "sudo", "apt", "install", "-y", packageName };
+            case "dnf" -> new String[] { "sudo", "dnf", "install", "-y", packageName };
+            case "pacman" -> new String[] { "sudo", "pacman", "-S", "--noconfirm", packageName };
+            case "zypper" -> new String[] { "sudo", "zypper", "--non-interactive", "install", packageName };
+            default -> throw new IllegalStateException("Aucun gestionnaire de paquets compatible détecté");
+        };
     }
 
     public String network() {
@@ -139,6 +168,21 @@ public final class SystemService {
 
     private static void deleteQuietly(Path path) {
         try { Files.deleteIfExists(path); } catch (IOException ignored) { }
+    }
+
+    private static String detectPackageManager(String idLike) {
+        if (executable("apt-get") || idLike.contains("debian") || idLike.contains("ubuntu")) return "apt";
+        if (executable("dnf") || idLike.contains("fedora") || idLike.contains("rhel")) return "dnf";
+        if (executable("pacman") || idLike.contains("arch")) return "pacman";
+        if (executable("zypper") || idLike.contains("suse")) return "zypper";
+        return "inconnu";
+    }
+
+    private static boolean executable(String command) {
+        for (String directory : System.getenv().getOrDefault("PATH", "").split(":")) {
+            if (Files.isExecutable(Path.of(directory, command))) return true;
+        }
+        return false;
     }
 
     private static long valueInKb(String line) {

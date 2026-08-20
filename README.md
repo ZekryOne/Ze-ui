@@ -53,6 +53,8 @@ quitter
 
 Les commandes courantes sont reconnues en français, anglais et russe. Les opérations sensibles demandent une confirmation. Le nettoyage du disque se limite à la corbeille utilisateur.
 
+La distribution Linux est détectée avec `/etc/os-release`. L'installation de logiciels utilise automatiquement le gestionnaire disponible : APT pour Debian/Ubuntu/Mint, DNF pour Fedora/RHEL, Pacman pour Arch et Zypper pour openSUSE. Flatpak est utilisé uniquement avec `--flatpak` et s'il est installé.
+
 ## Interface
 
 L'interface propose trois langues (`FR`, `EN`, `RU`), trois palettes (`MATRIX`, `CYBER`, `AMBER`) et une couleur d'accent personnalisable. Les préférences sont enregistrées dans `~/.config/assistant/ui.properties`.

@@ -25,6 +25,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 
 public final class AssistantWindow extends JFrame {
     private final AssistantEngine engine;
@@ -46,6 +47,7 @@ public final class AssistantWindow extends JFrame {
     public AssistantWindow(AssistantEngine engine) {
         super("Assistant");
         setName("Assistant");
+        setIconImage(createApplicationIcon());
         this.engine = engine;
         refreshTheme();
         input.addActionListener(event -> execute());
@@ -97,7 +99,7 @@ public final class AssistantWindow extends JFrame {
 
         JPanel telemetry = new JPanel(new GridLayout(2, 2, 8, 8));
         telemetry.setOpaque(false);
-        telemetry.add(infoPanel(text.system(), "Linux Mint 22.3\nJava 21 LTS"));
+        telemetry.add(infoPanel(text.system(), engine.platformName() + "\nJava 21 LTS"));
         telemetry.add(infoPanel(text.memory(), "ram  /  cpu  /  swap\nmonitoring on demand"));
         telemetry.add(infoPanel(text.network(), "local services ready\nweb browser available"));
         telemetry.add(infoPanel(text.commandBus(), "authorized actions only\nno shell passthrough"));
@@ -470,5 +472,23 @@ public final class AssistantWindow extends JFrame {
     private void append(String text) {
         output.append(text + "\n");
         output.setCaretPosition(output.getDocument().getLength());
+    }
+
+    private BufferedImage createApplicationIcon() {
+        BufferedImage image = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+        java.awt.Graphics2D graphics = image.createGraphics();
+        graphics.setColor(new Color(14, 16, 19));
+        graphics.fillRoundRect(0, 0, 128, 128, 16, 16);
+        graphics.setColor(theme.accent());
+        graphics.setStroke(new java.awt.BasicStroke(4));
+        for (int y = 32; y <= 80; y += 16) graphics.drawLine(20, y, y == 80 ? 78 : 108, y);
+        graphics.setColor(new Color(141, 169, 162));
+        graphics.drawLine(20, 96, 58, 96);
+        graphics.setColor(theme.accent());
+        graphics.drawOval(84, 84, 24, 24);
+        graphics.drawLine(91, 96, 95, 100);
+        graphics.drawLine(95, 100, 103, 91);
+        graphics.dispose();
+        return image;
     }
 }

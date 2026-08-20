@@ -12,7 +12,7 @@ if [[ ! -d "$PROJECT_DIR/bin" ]] || ! find "$PROJECT_DIR/bin" -name '*.class' -p
     javac --release 21 -d "$PROJECT_DIR/bin" $(find "$PROJECT_DIR/src" -name '*.java' -print)
 fi
 
-JAVA_OPTS=("-Xms16m" "-Xmx256m" "-XX:+UseSerialGC")
+JAVA_OPTS=("-Xms16m" "-Xmx256m" "-XX:+UseSerialGC" "-Dsun.awt.X11.awtClassName=Assistant")
 if [[ -n "${ASSISTANT_JAVA_OPTS:-}" ]]; then
     read -r -a EXTRA_JAVA_OPTS <<< "$ASSISTANT_JAVA_OPTS"
     JAVA_OPTS+=("${EXTRA_JAVA_OPTS[@]}")
