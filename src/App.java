@@ -11,6 +11,7 @@ public final class App {
             System.out.println(engine.execute("ram", question -> false));
             System.out.println(engine.execute("etat", question -> false));
             System.out.println(engine.execute("optimiser ram cpu", question -> false));
+            System.out.println(engine.execute("music status", question -> false));
             System.out.println(engine.execute("supprimer /tmp/assistant-test", question -> false));
             return;
         }

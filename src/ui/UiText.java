@@ -25,5 +25,11 @@ public final class UiText {
     public String help() { return switch (language) { case FR -> "AIDE"; case EN -> "HELP"; case RU -> "ПОМОЩЬ"; }; }
     public String optimize() { return switch (language) { case FR -> "OPTIMISER"; case EN -> "OPTIMIZE"; case RU -> "ОПТИМИЗАЦИЯ"; }; }
     public String selectOptimization() { return switch (language) { case FR -> "Choisir les optimisations"; case EN -> "Choose optimizations"; case RU -> "Выберите оптимизацию"; }; }
+    public String console() { return switch (language) { case FR -> "CONSOLE"; case EN -> "CONSOLE"; case RU -> "КОНСОЛЬ"; }; }
+    public String music() { return switch (language) { case FR -> "MUSIQUE"; case EN -> "MUSIC"; case RU -> "МУЗЫКА"; }; }
+    public String playPause() { return switch (language) { case FR -> "LECTURE / PAUSE"; case EN -> "PLAY / PAUSE"; case RU -> "ПУСК / ПАУЗА"; }; }
+    public String previous() { return switch (language) { case FR -> "PRECEDENT"; case EN -> "PREVIOUS"; case RU -> "ПРЕДЫДУЩИЙ"; }; }
+    public String next() { return switch (language) { case FR -> "SUIVANT"; case EN -> "NEXT"; case RU -> "СЛЕДУЮЩИЙ"; }; }
+    public String noMusic() { return switch (language) { case FR -> "Aucun lecteur MPRIS détecté. Installez playerctl pour Spotify."; case EN -> "No MPRIS player detected. Install playerctl for Spotify."; case RU -> "Проигрыватель MPRIS не найден. Установите playerctl для Spotify."; }; }
     public String state(String value) { return "● " + value; }
 }

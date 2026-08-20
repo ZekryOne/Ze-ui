@@ -34,6 +34,7 @@ public final class CommandParser {
             case "aide", "help", "помощь" -> "help";
             case "quitter", "quit", "exit", "выход" -> "quitter";
             case "optimiser", "optimise", "optimize", "оптимизировать" -> "optimiser";
+            case "musique", "music", "spotify", "spicetify", "музыка" -> "musique";
             default -> value.toLowerCase(Locale.ROOT);
         };
     }

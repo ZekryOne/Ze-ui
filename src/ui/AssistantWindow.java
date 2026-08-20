@@ -13,8 +13,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,6 +32,9 @@ public final class AssistantWindow extends JFrame {
     private final JTextArea output = new JTextArea();
     private final JTextField input = new JTextField();
     private final JLabel state = new JLabel("● prêt");
+    private final JLabel musicTrack = new JLabel("MPRIS // --");
+    private final JLabel musicBars = new JLabel("[ . . . . . . . . ]");
+    private Timer musicTimer;
     private UiText text;
     private UiTheme theme;
 
@@ -132,13 +137,25 @@ public final class AssistantWindow extends JFrame {
         JScrollPane history = new JScrollPane(output);
         history.setBorder(BorderFactory.createLineBorder(theme.border()));
         center.add(history, BorderLayout.CENTER);
-        root.add(center, BorderLayout.CENTER);
         JPanel lower = new JPanel(new BorderLayout(0, 8));
         lower.setBackground(theme.background());
         lower.add(command, BorderLayout.NORTH);
         lower.add(quick, BorderLayout.CENTER);
         lower.add(footer, BorderLayout.SOUTH);
-        root.add(lower, BorderLayout.SOUTH);
+        JPanel console = new JPanel(new BorderLayout(0, 8));
+        console.setBackground(theme.background());
+        console.add(center, BorderLayout.CENTER);
+        console.add(lower, BorderLayout.SOUTH);
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.setBackground(theme.background());
+        tabs.setForeground(theme.accent());
+        tabs.addTab(text.console(), console);
+        tabs.addTab(text.music(), musicPanel());
+        tabs.addChangeListener(event -> {
+            if (tabs.getSelectedIndex() == 1) startMusicMonitor();
+            else stopMusicMonitor();
+        });
+        root.add(tabs, BorderLayout.CENTER);
         setContentPane(root);
     }
 
@@ -193,6 +210,97 @@ public final class AssistantWindow extends JFrame {
         if (command.length() == "optimiser".length()) return;
         input.setText(command.toString());
         execute();
+    }
+
+    private JPanel musicPanel() {
+        JPanel panel = new JPanel(new BorderLayout(0, 14));
+        panel.setBackground(theme.background());
+        panel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
+
+        JLabel heading = new JLabel("+-- " + text.music() + " // MPRIS ------------------------------+");
+        heading.setForeground(theme.accent());
+        heading.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
+        panel.add(heading, BorderLayout.NORTH);
+
+        JPanel display = new JPanel(new GridLayout(3, 1, 0, 8));
+        display.setBackground(theme.panel());
+        display.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(theme.border()),
+                BorderFactory.createEmptyBorder(20, 16, 20, 16)));
+        musicTrack.setForeground(theme.text());
+        musicTrack.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
+        musicTrack.setHorizontalAlignment(JLabel.CENTER);
+        musicBars.setForeground(theme.accent());
+        musicBars.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
+        musicBars.setHorizontalAlignment(JLabel.CENTER);
+        JLabel hint = new JLabel("Spotify / Spicetify via playerctl");
+        hint.setForeground(theme.text().darker());
+        hint.setHorizontalAlignment(JLabel.CENTER);
+        display.add(musicTrack);
+        display.add(musicBars);
+        display.add(hint);
+        panel.add(display, BorderLayout.CENTER);
+
+        JPanel controls = new JPanel(new GridLayout(1, 3, 8, 0));
+        controls.setBackground(theme.background());
+        addMusicButton(controls, text.previous(), "music previous");
+        addMusicButton(controls, text.playPause(), "music play-pause");
+        addMusicButton(controls, text.next(), "music next");
+        panel.add(controls, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private void addMusicButton(JPanel panel, String label, String command) {
+        JButton button = button(label);
+        button.addActionListener(event -> runMusicCommand(command));
+        panel.add(button);
+    }
+
+    private void runMusicCommand(String command) {
+        new SwingWorker<String, Void>() {
+            @Override protected String doInBackground() { return engine.execute(command, question -> false); }
+            @Override protected void done() {
+                try { append(get()); updateMusicDisplay(); }
+                catch (Exception error) { append("Music error: " + error.getMessage()); }
+            }
+        }.execute();
+    }
+
+    private void startMusicMonitor() {
+        if (musicTimer == null) musicTimer = new Timer(900, event -> updateMusicDisplay());
+        updateMusicDisplay();
+        musicTimer.start();
+    }
+
+    private void stopMusicMonitor() {
+        if (musicTimer != null) musicTimer.stop();
+    }
+
+    private void updateMusicDisplay() {
+        new SwingWorker<String, Void>() {
+            @Override protected String doInBackground() { return engine.execute("music status", question -> false); }
+            @Override protected void done() {
+                try {
+                    String result = get();
+                    boolean playing = result.toLowerCase().contains("playing") || result.toLowerCase().contains("lecture");
+                    musicTrack.setText(result.replace("\n", "  |  "));
+                    musicBars.setText(playing ? animatedBars() : "[ . . . . . . . . ]");
+                } catch (Exception error) {
+                    musicTrack.setText(text.noMusic());
+                    musicBars.setText("[ - - - - - - - - ]");
+                }
+            }
+        }.execute();
+    }
+
+    private String animatedBars() {
+        int phase = (int) ((System.currentTimeMillis() / 180) % 4);
+        return switch (phase) {
+            case 0 -> "[ ▂ ▅ ▃ ▇ ▂ ▆ ▄ ▇ ]";
+            case 1 -> "[ ▅ ▂ ▇ ▃ ▆ ▄ ▇ ▂ ]";
+            case 2 -> "[ ▇ ▃ ▅ ▂ ▇ ▄ ▂ ▆ ]";
+            default -> "[ ▃ ▇ ▂ ▅ ▄ ▇ ▆ ▂ ]";
+        };
     }
 
     private JButton button(String label) {
@@ -272,6 +380,7 @@ public final class AssistantWindow extends JFrame {
     }
 
     private void rebuild() {
+        stopMusicMonitor();
         refreshTheme();
         getContentPane().removeAll();
         buildUi();

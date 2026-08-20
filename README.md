@@ -57,6 +57,18 @@ Les commandes courantes sont reconnues en français, anglais et russe. Les opér
 
 L'interface propose trois langues (`FR`, `EN`, `RU`), trois palettes (`MATRIX`, `CYBER`, `AMBER`) et une couleur d'accent personnalisable. Les préférences sont enregistrées dans `~/.config/assistant/ui.properties`.
 
+## Musique
+
+L'onglet **MUSIC** contrôle Spotify et Spicetify avec le protocole MPRIS via `playerctl` : lecture/pause, piste précédente, piste suivante et affichage du morceau en cours. L'animation ASCII ne se met à jour que lorsque l'onglet musique est ouvert et qu'un morceau joue.
+
+Installez le composant système si nécessaire :
+
+```bash
+sudo apt install playerctl
+```
+
+Les commandes disponibles sont `music status`, `music play-pause`, `music previous` et `music next`.
+
 ## Structure
 
 ```text

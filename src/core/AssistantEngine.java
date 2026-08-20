@@ -5,6 +5,7 @@ import commands.CommandParser;
 import commands.ParsedCommand;
 import files.FileService;
 import network.NetworkService;
+import music.MusicService;
 import startup.StartupService;
 import system.SystemService;
 
@@ -23,6 +24,7 @@ public final class AssistantEngine {
     private final NetworkService network = new NetworkService();
     private final SystemService system = new SystemService();
     private final StartupService startup = new StartupService();
+    private final MusicService music = new MusicService();
 
     public String execute(String input, Predicate<String> confirm) {
         ParsedCommand command = parser.parse(input);
@@ -40,6 +42,7 @@ public final class AssistantEngine {
                 case "rechercher" -> search(command.arguments());
                 case "installer" -> install(command, confirm);
                 case "optimiser" -> optimize(command.arguments(), confirm);
+                case "musique", "music", "spotify", "spicetify" -> musicCommand(command.arguments());
                 case "cpu" -> system.cpu();
                 case "ram" -> system.memory();
                 case "disque" -> system.disk();
@@ -57,6 +60,19 @@ public final class AssistantEngine {
 
     public boolean startupEnabled() { return startup.isEnabled(); }
     public void setStartup(boolean enabled) throws Exception { startup.setEnabled(enabled); }
+
+    private String musicCommand(List<String> arguments) {
+        if (arguments.isEmpty() || arguments.contains("status")) {
+            String status = music.status();
+            return status.equals("UNAVAILABLE") ? music.installHint() : status + "\n" + music.metadata();
+        }
+        return switch (arguments.getFirst().toLowerCase()) {
+            case "play", "pause", "play-pause" -> music.playPause();
+            case "next", "suivant" -> music.next();
+            case "previous", "prev", "precedent" -> music.previous();
+            default -> "Usage: music [play|pause|next|previous|status]";
+        };
+    }
 
     private String open(List<String> arguments) throws Exception {
         String target = first(arguments);
@@ -118,7 +134,7 @@ public final class AssistantEngine {
     }
 
     private String help() {
-        return "Commands: open/launch/run, close, copy, move, rename, delete, search, install, optimize [ram|cpu|disk|all], cpu, memory, disk, battery, network, status, quit";
+        return "Commands: open/launch/run, close, copy, move, rename, delete, search, install, optimize [ram|cpu|disk|all], music [play|pause|next|previous|status], cpu, memory, disk, battery, network, status, quit";
     }
 
     private static String first(ParsedCommand command) { return first(command.arguments()); }
