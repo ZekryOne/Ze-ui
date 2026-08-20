@@ -70,8 +70,28 @@ public final class AssistantEngine {
             case "play", "pause", "play-pause" -> music.playPause();
             case "next", "suivant" -> music.next();
             case "previous", "prev", "precedent" -> music.previous();
+            case "volume" -> music.volume();
+            case "volume-up", "louder", "plus" -> music.changeVolume(5);
+            case "volume-down", "quieter", "moins" -> music.changeVolume(-5);
+            case "volume-set" -> setVolume(arguments);
             default -> "Usage: music [play|pause|next|previous|status]";
         };
+    }
+
+    private String setVolume(List<String> arguments) {
+        if (arguments.size() < 2) return "Usage: music volume-set <0-100>";
+        try {
+            int value = Integer.parseInt(arguments.get(1));
+            if (value < 0 || value > 100) return "Volume must be between 0 and 100.";
+            return music.changeVolume(value - currentVolume());
+        } catch (NumberFormatException error) {
+            return "Usage: music volume-set <0-100>";
+        }
+    }
+
+    private int currentVolume() {
+        String value = music.volume().replaceAll("[^0-9]", "");
+        return value.isBlank() ? 0 : Integer.parseInt(value);
     }
 
     private String open(List<String> arguments) throws Exception {
@@ -134,7 +154,7 @@ public final class AssistantEngine {
     }
 
     private String help() {
-        return "Commands: open/launch/run, close, copy, move, rename, delete, search, install, optimize [ram|cpu|disk|all], music [play|pause|next|previous|status], cpu, memory, disk, battery, network, status, quit";
+        return "Commands: open/launch/run, close, copy, move, rename, delete, search, install, optimize [ram|cpu|disk|all], music [play|pause|next|previous|volume|volume-up|volume-down|volume-set], cpu, memory, disk, battery, network, status, quit";
     }
 
     private static String first(ParsedCommand command) { return first(command.arguments()); }

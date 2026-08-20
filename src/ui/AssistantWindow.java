@@ -34,7 +34,9 @@ public final class AssistantWindow extends JFrame {
     private final JLabel state = new JLabel("● prêt");
     private final JLabel musicTrack = new JLabel("MPRIS // --");
     private final JLabel musicBars = new JLabel("[ . . . . . . . . ]");
+    private final JLabel musicVolume = new JLabel("VOL --");
     private Timer musicTimer;
+    private AnimatedBackground animatedBackground;
     private UiText text;
     private UiTheme theme;
 
@@ -51,18 +53,23 @@ public final class AssistantWindow extends JFrame {
         buildUi();
         installShortcuts();
         addWindowListener(new WindowAdapter() {
-            @Override public void windowOpened(WindowEvent event) { input.requestFocusInWindow(); }
+            @Override public void windowOpened(WindowEvent event) { input.requestFocusInWindow(); animatedBackground.start(); }
+            @Override public void windowActivated(WindowEvent event) { animatedBackground.start(); }
+            @Override public void windowDeactivated(WindowEvent event) { animatedBackground.stop(); }
+            @Override public void windowClosed(WindowEvent event) { animatedBackground.stop(); }
         });
     }
 
     private void buildUi() {
         getContentPane().setBackground(theme.background());
-        JPanel root = new JPanel(new BorderLayout(0, 10));
+        animatedBackground = new AnimatedBackground(theme);
+        JPanel root = animatedBackground;
+        root.setLayout(new BorderLayout(0, 10));
         root.setBackground(theme.background());
         root.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
 
         JPanel header = new JPanel(new BorderLayout(10, 0));
-        header.setBackground(theme.background());
+        header.setOpaque(false);
         JLabel title = new JLabel(text.title());
         title.setForeground(theme.accent());
         title.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
@@ -74,6 +81,7 @@ public final class AssistantWindow extends JFrame {
         output.setEditable(false);
         output.setLineWrap(true);
         output.setWrapStyleWord(true);
+        output.setOpaque(false);
         output.setBackground(theme.background());
         output.setForeground(theme.text());
         output.setCaretColor(theme.accent());
@@ -85,14 +93,14 @@ public final class AssistantWindow extends JFrame {
                 + "+------------------------------------------------------------+\n");
 
         JPanel telemetry = new JPanel(new GridLayout(2, 2, 8, 8));
-        telemetry.setBackground(theme.background());
+        telemetry.setOpaque(false);
         telemetry.add(infoPanel(text.system(), "Linux Mint 22.3\nJava 21 LTS"));
         telemetry.add(infoPanel(text.memory(), "ram  /  cpu  /  swap\nmonitoring on demand"));
         telemetry.add(infoPanel(text.network(), "local services ready\nweb browser available"));
         telemetry.add(infoPanel(text.commandBus(), "authorized actions only\nno shell passthrough"));
 
         JPanel command = new JPanel(new BorderLayout(8, 0));
-        command.setBackground(theme.background());
+        command.setOpaque(false);
         input.setBackground(theme.panel());
         input.setForeground(theme.text());
         input.setCaretColor(theme.accent());
@@ -106,7 +114,7 @@ public final class AssistantWindow extends JFrame {
         command.add(run, BorderLayout.EAST);
 
         JPanel quick = new JPanel(new GridLayout(1, 6, 6, 0));
-        quick.setBackground(theme.background());
+        quick.setOpaque(false);
         addQuickButton(quick, text.system(), "etat");
         addQuickButton(quick, text.ram(), "ram");
         addQuickButton(quick, text.cpu(), "cpu");
@@ -117,7 +125,7 @@ public final class AssistantWindow extends JFrame {
         quick.add(optimize);
 
         JPanel footer = new JPanel(new BorderLayout());
-        footer.setBackground(theme.background());
+        footer.setOpaque(false);
         JCheckBox startup = new JCheckBox(text.startup(), engine.startupEnabled());
         startup.setForeground(theme.text());
         startup.setBackground(theme.background());
@@ -132,22 +140,24 @@ public final class AssistantWindow extends JFrame {
 
         root.add(header, BorderLayout.NORTH);
         JPanel center = new JPanel(new BorderLayout(0, 8));
-        center.setBackground(theme.background());
+        center.setOpaque(false);
         center.add(telemetry, BorderLayout.NORTH);
         JScrollPane history = new JScrollPane(output);
+        history.setOpaque(false);
+        history.getViewport().setOpaque(false);
         history.setBorder(BorderFactory.createLineBorder(theme.border()));
         center.add(history, BorderLayout.CENTER);
         JPanel lower = new JPanel(new BorderLayout(0, 8));
-        lower.setBackground(theme.background());
+        lower.setOpaque(false);
         lower.add(command, BorderLayout.NORTH);
         lower.add(quick, BorderLayout.CENTER);
         lower.add(footer, BorderLayout.SOUTH);
         JPanel console = new JPanel(new BorderLayout(0, 8));
-        console.setBackground(theme.background());
+        console.setOpaque(false);
         console.add(center, BorderLayout.CENTER);
         console.add(lower, BorderLayout.SOUTH);
         JTabbedPane tabs = new JTabbedPane();
-        tabs.setBackground(theme.background());
+        tabs.setOpaque(false);
         tabs.setForeground(theme.accent());
         tabs.addTab(text.console(), console);
         tabs.addTab(text.music(), musicPanel());
@@ -157,6 +167,7 @@ public final class AssistantWindow extends JFrame {
         });
         root.add(tabs, BorderLayout.CENTER);
         setContentPane(root);
+        installFavorites(console);
     }
 
     private void installShortcuts() {
@@ -222,7 +233,7 @@ public final class AssistantWindow extends JFrame {
         heading.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
         panel.add(heading, BorderLayout.NORTH);
 
-        JPanel display = new JPanel(new GridLayout(3, 1, 0, 8));
+        JPanel display = new JPanel(new GridLayout(4, 1, 0, 8));
         display.setBackground(theme.panel());
         display.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(theme.border()),
@@ -233,19 +244,25 @@ public final class AssistantWindow extends JFrame {
         musicBars.setForeground(theme.accent());
         musicBars.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
         musicBars.setHorizontalAlignment(JLabel.CENTER);
+        musicVolume.setForeground(theme.text());
+        musicVolume.setFont(new Font(Font.MONOSPACED, Font.BOLD, 13));
+        musicVolume.setHorizontalAlignment(JLabel.CENTER);
         JLabel hint = new JLabel("Spotify / Spicetify via playerctl");
         hint.setForeground(theme.text().darker());
         hint.setHorizontalAlignment(JLabel.CENTER);
         display.add(musicTrack);
         display.add(musicBars);
+        display.add(musicVolume);
         display.add(hint);
         panel.add(display, BorderLayout.CENTER);
 
-        JPanel controls = new JPanel(new GridLayout(1, 3, 8, 0));
-        controls.setBackground(theme.background());
+        JPanel controls = new JPanel(new GridLayout(1, 5, 8, 0));
+        controls.setOpaque(false);
         addMusicButton(controls, text.previous(), "music previous");
         addMusicButton(controls, text.playPause(), "music play-pause");
         addMusicButton(controls, text.next(), "music next");
+        addMusicButton(controls, "VOL -", "music volume-down");
+        addMusicButton(controls, "VOL +", "music volume-up");
         panel.add(controls, BorderLayout.SOUTH);
         return panel;
     }
@@ -260,7 +277,7 @@ public final class AssistantWindow extends JFrame {
         new SwingWorker<String, Void>() {
             @Override protected String doInBackground() { return engine.execute(command, question -> false); }
             @Override protected void done() {
-                try { append(get()); updateMusicDisplay(); }
+                try { append(get()); updateMusicDisplay(); updateMusicVolume(); }
                 catch (Exception error) { append("Music error: " + error.getMessage()); }
             }
         }.execute();
@@ -291,6 +308,51 @@ public final class AssistantWindow extends JFrame {
                 }
             }
         }.execute();
+    }
+
+    private void updateMusicVolume() {
+        new SwingWorker<String, Void>() {
+            @Override protected String doInBackground() { return engine.execute("music volume", question -> false); }
+            @Override protected void done() {
+                try { musicVolume.setText(get()); } catch (Exception ignored) { }
+            }
+        }.execute();
+    }
+
+    private void installFavorites(JPanel console) {
+        JPanel favorites = new JPanel(new BorderLayout(8, 0));
+        favorites.setOpaque(false);
+        JLabel label = new JLabel("FAVORITES //");
+        label.setForeground(theme.accent());
+        label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 11));
+        JPanel buttons = new JPanel(new GridLayout(1, Math.max(1, preferences.favorites().size() + 1), 6, 0));
+        buttons.setOpaque(false);
+        for (String favorite : preferences.favorites()) {
+            JButton button = button(favorite.toUpperCase());
+            button.addActionListener(event -> runFavorite(favorite));
+            buttons.add(button);
+        }
+        JButton add = button("+");
+        add.setToolTipText("Ajouter une application favorite");
+        add.addActionListener(event -> addFavorite());
+        buttons.add(add);
+        favorites.add(label, BorderLayout.WEST);
+        favorites.add(buttons, BorderLayout.CENTER);
+        console.add(favorites, BorderLayout.NORTH);
+    }
+
+    private void runFavorite(String favorite) {
+        input.setText("open " + favorite);
+        execute();
+    }
+
+    private void addFavorite() {
+        String value = javax.swing.JOptionPane.showInputDialog(this, "Nom de l'application ou commande", "Ajouter un favori", javax.swing.JOptionPane.PLAIN_MESSAGE);
+        if (value == null || value.isBlank()) return;
+        java.util.ArrayList<String> favorites = new java.util.ArrayList<>(preferences.favorites());
+        favorites.add(value.trim());
+        preferences.favorites(favorites);
+        rebuild();
     }
 
     private String animatedBars() {

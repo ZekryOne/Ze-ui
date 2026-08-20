@@ -9,7 +9,7 @@ public final class MusicService {
     }
 
     public String metadata() {
-        return run("playerctl", "metadata", "--format", "{{artist}} - {{title}}\\n{{album}}").orElse("");
+        return run("playerctl", "metadata", "--format", "{{artist}} - {{title}} | {{album}}").orElse("");
     }
 
     public String playPause() {
@@ -22,6 +22,23 @@ public final class MusicService {
 
     public String previous() {
         return action("previous");
+    }
+
+    public String volume() {
+        return run("playerctl", "volume").map(value -> "Volume : " + Math.round(Double.parseDouble(value) * 100) + "%")
+                .orElse(installHint());
+    }
+
+    public String changeVolume(int percentage) {
+        Optional<String> current = run("playerctl", "volume");
+        if (current.isEmpty()) return installHint();
+        try {
+            double next = Math.max(0, Math.min(1, Double.parseDouble(current.get()) + percentage / 100.0));
+            run("playerctl", "volume", String.format(java.util.Locale.ROOT, "%.2f", next));
+            return volume();
+        } catch (NumberFormatException error) {
+            return "Volume indisponible.";
+        }
     }
 
     public String installHint() {

@@ -67,7 +67,11 @@ Installez le composant système si nécessaire :
 sudo apt install playerctl
 ```
 
-Les commandes disponibles sont `music status`, `music play-pause`, `music previous` et `music next`.
+Les commandes disponibles sont `music status`, `music play-pause`, `music previous`, `music next`, `music volume`, `music volume-up`, `music volume-down` et `music volume-set <0-100>`.
+
+La console affiche aussi une rangée de favoris. Les boutons par défaut lancent Firefox, Spotify, Nemo et le terminal. Le bouton `+` permet d'ajouter une application ; la liste est conservée dans `~/.config/assistant/ui.properties`.
+
+Le fond animé est volontairement discret et s'arrête lorsque la fenêtre perd le focus. Les panneaux laissent passer une partie de la grille et des vagues ASCII pour garder l'effet eDEX-ui sans animation lourde.
 
 ## Structure
 
