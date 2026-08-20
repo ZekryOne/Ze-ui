@@ -17,7 +17,7 @@ public final class CommandParser {
 
     private String normalize(String value) {
         return switch (value.toLowerCase(Locale.ROOT)) {
-            case "ouvre", "lance", "démarre", "demarre", "open", "launch", "start", "открыть", "запустить" -> "ouvrir";
+            case "ouvre", "lance", "démarre", "demarre", "open", "launch", "start", "run", "открыть", "запустить" -> "ouvrir";
             case "cherche", "search", "find", "искать", "найти" -> "rechercher";
             case "installe", "install", "установить" -> "installer";
             case "copie", "copy", "копировать" -> "copier";
@@ -25,7 +25,7 @@ public final class CommandParser {
             case "renomme", "renommer", "rename", "переименовать" -> "renommer";
             case "supprime", "delete", "remove", "удалить" -> "supprimer";
             case "fermer", "close", "stop", "закрыть" -> "fermer";
-            case "état", "etat", "status", "состояние" -> "etat";
+            case "état", "etat", "status", "system", "состояние" -> "etat";
             case "ram", "memory", "память", "озу" -> "ram";
             case "cpu", "процессор" -> "cpu";
             case "disque", "disk", "диск" -> "disque";

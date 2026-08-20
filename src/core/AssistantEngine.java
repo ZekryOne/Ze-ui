@@ -118,7 +118,7 @@ public final class AssistantEngine {
     }
 
     private String help() {
-        return "Commandes : ouvrir/lancer, fermer, copier, deplacer, renommer, supprimer, rechercher, installer, optimiser [ram|cpu|disque|tout], cpu, ram, disque, batterie, reseau, etat, quitter";
+        return "Commands: open/launch/run, close, copy, move, rename, delete, search, install, optimize [ram|cpu|disk|all], cpu, memory, disk, battery, network, status, quit";
     }
 
     private static String first(ParsedCommand command) { return first(command.arguments()); }
