@@ -1,6 +1,6 @@
 # Maintainer: ZekryOne
 pkgname=assistant-linux
-pkgver=0.20
+pkgver=0.21
 pkgrel=1
 pkgdesc='Assistant de bureau Linux en Java et Swing'
 arch=('x86_64' 'aarch64')
@@ -9,7 +9,7 @@ depends=('java-runtime>=21' 'playerctl' 'procps-ng' 'xdg-utils' 'hicolor-icon-th
 makedepends=('git' 'java-environment>=21')
 optdepends=('spotify: lecteur musical contrôlé via MPRIS'
             'spicetify-cli: alternative pour lancer Spotify')
-source=('git+https://github.com/ZekryOne/Ze-ui.git#commit=f918e41')
+source=('git+https://github.com/ZekryOne/Ze-ui.git#commit=fba13424c9522df5b04cc45283dd5c80b855315b')
 sha256sums=('SKIP')
 
 build() {
