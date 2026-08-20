@@ -1,0 +1,19 @@
+pkgbase = assistant-linux
+	pkgdesc = Assistant de bureau Linux en Java et Swing
+	pkgver = 0.20
+	pkgrel = 1
+	url = https://github.com/ZekryOne/Ze-ui
+	arch = x86_64
+	arch = aarch64
+	depends = java-runtime>=21
+	depends = playerctl
+	depends = xdg-utils
+	depends = hicolor-icon-theme
+	makedepends = git
+	makedepends = java-environment>=21
+	optdepends = spotify: lecteur musical contrôlé via MPRIS
+	optdepends = spicetify-cli: alternative pour lancer Spotify
+	source = git+https://github.com/ZekryOne/Ze-ui.git#commit=f918e41
+	sha256sums = SKIP
+
+pkgname = assistant-linux
