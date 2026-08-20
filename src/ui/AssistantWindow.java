@@ -159,6 +159,7 @@ public final class AssistantWindow extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
         tabs.setOpaque(false);
         tabs.setForeground(theme.accent());
+        tabs.setUI(new DarkTabbedPaneUI(theme));
         tabs.addTab(text.console(), console);
         tabs.addTab(text.music(), musicPanel());
         tabs.addChangeListener(event -> {
@@ -225,7 +226,7 @@ public final class AssistantWindow extends JFrame {
 
     private JPanel musicPanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 14));
-        panel.setBackground(theme.background());
+        panel.setOpaque(false);
         panel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
 
         JLabel heading = new JLabel("+-- " + text.music() + " // MPRIS ------------------------------+");

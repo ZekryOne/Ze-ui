@@ -15,8 +15,8 @@ public final class AnimatedBackground extends JPanel {
     public AnimatedBackground(UiTheme theme) {
         this.theme = theme;
         setOpaque(true);
-        timer = new Timer(70, event -> {
-            phase += 0.035;
+        timer = new Timer(33, event -> {
+            phase += 0.045;
             repaint();
         });
     }
