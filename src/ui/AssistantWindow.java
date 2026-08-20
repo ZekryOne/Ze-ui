@@ -36,6 +36,9 @@ public final class AssistantWindow extends JFrame {
     private final JLabel musicBars = new JLabel("[ . . . . . . . . ]");
     private final JLabel musicVolume = new JLabel("VOL --");
     private Timer musicTimer;
+    private Timer musicAnimationTimer;
+    private boolean musicPlaying;
+    private double musicAnimationPhase;
     private AnimatedBackground animatedBackground;
     private UiText text;
     private UiTheme theme;
@@ -286,12 +289,23 @@ public final class AssistantWindow extends JFrame {
 
     private void startMusicMonitor() {
         if (musicTimer == null) musicTimer = new Timer(900, event -> updateMusicDisplay());
+        if (musicAnimationTimer == null) {
+            musicAnimationTimer = new Timer(33, event -> {
+                if (musicPlaying) {
+                    musicAnimationPhase += 0.16;
+                    musicBars.setText(animatedBars());
+                }
+            });
+        }
         updateMusicDisplay();
         musicTimer.start();
+        musicAnimationTimer.start();
     }
 
     private void stopMusicMonitor() {
         if (musicTimer != null) musicTimer.stop();
+        if (musicAnimationTimer != null) musicAnimationTimer.stop();
+        musicPlaying = false;
     }
 
     private void updateMusicDisplay() {
@@ -300,9 +314,9 @@ public final class AssistantWindow extends JFrame {
             @Override protected void done() {
                 try {
                     String result = get();
-                    boolean playing = result.toLowerCase().contains("playing") || result.toLowerCase().contains("lecture");
+                    musicPlaying = result.toLowerCase().contains("playing") || result.toLowerCase().contains("lecture");
                     musicTrack.setText(result.replace("\n", "  |  "));
-                    musicBars.setText(playing ? animatedBars() : "[ . . . . . . . . ]");
+                    if (!musicPlaying) musicBars.setText("[ . . . . . . . . ]");
                 } catch (Exception error) {
                     musicTrack.setText(text.noMusic());
                     musicBars.setText("[ - - - - - - - - ]");
@@ -357,13 +371,15 @@ public final class AssistantWindow extends JFrame {
     }
 
     private String animatedBars() {
-        int phase = (int) ((System.currentTimeMillis() / 180) % 4);
-        return switch (phase) {
-            case 0 -> "[ ▂ ▅ ▃ ▇ ▂ ▆ ▄ ▇ ]";
-            case 1 -> "[ ▅ ▂ ▇ ▃ ▆ ▄ ▇ ▂ ]";
-            case 2 -> "[ ▇ ▃ ▅ ▂ ▇ ▄ ▂ ▆ ]";
-            default -> "[ ▃ ▇ ▂ ▅ ▄ ▇ ▆ ▂ ]";
-        };
+        String levels = " ▁▂▃▄▅▆▇█";
+        StringBuilder bars = new StringBuilder("[ ");
+        for (int index = 0; index < 12; index++) {
+            double wave = Math.sin(musicAnimationPhase + index * 0.58) * 0.5
+                    + Math.sin(musicAnimationPhase * 0.63 + index * 0.21) * 0.25 + 0.5;
+            int level = Math.max(1, Math.min(levels.length() - 1, (int) Math.round(wave * (levels.length() - 1))));
+            bars.append(levels.charAt(level)).append(' ');
+        }
+        return bars.append(']').toString();
     }
 
     private JButton button(String label) {
