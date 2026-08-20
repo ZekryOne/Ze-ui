@@ -68,7 +68,8 @@ public final class AssistantEngine {
             return status.equals("UNAVAILABLE") ? music.installHint() : status + "\n" + music.metadata();
         }
         return switch (arguments.getFirst().toLowerCase()) {
-            case "play", "pause", "play-pause" -> music.playPause();
+            case "play" -> music.play();
+            case "pause", "play-pause" -> music.playPause();
             case "next", "suivant" -> music.next();
             case "previous", "prev", "precedent" -> music.previous();
             case "volume" -> music.volume();

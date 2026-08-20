@@ -47,9 +47,9 @@ public final class AssistantWindow extends JFrame {
     public AssistantWindow(AssistantEngine engine) {
         super("Assistant");
         setName("Assistant");
-        setIconImage(createApplicationIcon());
         this.engine = engine;
         refreshTheme();
+        setIconImage(createApplicationIcon());
         input.addActionListener(event -> execute());
         setDefaultCloseOperation(HIDE_ON_CLOSE);
         setMinimumSize(new Dimension(760, 480));
@@ -265,7 +265,7 @@ public final class AssistantWindow extends JFrame {
         JPanel controls = new JPanel(new GridLayout(1, 5, 8, 0));
         controls.setOpaque(false);
         addMusicButton(controls, text.previous(), "music previous");
-        addMusicButton(controls, text.playPause(), "music play-pause");
+        addMusicButton(controls, text.playPause(), "music play");
         addMusicButton(controls, text.next(), "music next");
         addMusicButton(controls, "VOL -", "music volume-down");
         addMusicButton(controls, "VOL +", "music volume-up");
@@ -416,6 +416,7 @@ public final class AssistantWindow extends JFrame {
         theme = UiTheme.create(preferences.palette(), preferences.customAccent());
         setTitle(text.title());
         state.setText(text.state(text.ready()));
+        if (isDisplayable()) setIconImage(createApplicationIcon());
     }
 
     private JPanel headerControls() {

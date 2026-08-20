@@ -1,6 +1,9 @@
 package music;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 public final class MusicService {
@@ -14,6 +17,21 @@ public final class MusicService {
 
     public String playPause() {
         return action("play-pause");
+    }
+
+    public String play() {
+        if (!commandAvailable("playerctl")) return installHint();
+        if (run("playerctl", "status").isEmpty()) {
+            Optional<List<String>> player = installedPlayer();
+            if (player.isEmpty()) return playerHint();
+            try {
+                new ProcessBuilder(player.get()).start();
+                if (!waitForPlayer()) return "Spotify a été lancé, mais MPRIS n'est pas encore disponible.";
+            } catch (IOException error) {
+                return "Impossible de lancer Spotify : " + error.getMessage();
+            }
+        }
+        return action("play");
     }
 
     public String next() {
@@ -44,6 +62,40 @@ public final class MusicService {
     public String installHint() {
         return "playerctl est requis pour contrôler Spotify via MPRIS.\n"
                 + "Installation : sudo apt install playerctl";
+    }
+
+    private String playerHint() {
+        return "Spotify ou Spicetify est requis pour démarrer la musique.";
+    }
+
+    private Optional<List<String>> installedPlayer() {
+        if (commandAvailable("spotify")) return Optional.of(List.of("spotify"));
+        if (commandAvailable("spicetify") && commandAvailable("xdg-open")) {
+            return Optional.of(List.of("xdg-open", "spotify:"));
+        }
+        return Optional.empty();
+    }
+
+    private boolean commandAvailable(String command) {
+        String path = System.getenv("PATH");
+        if (path == null) return false;
+        for (String directory : path.split(java.util.regex.Pattern.quote(java.io.File.pathSeparator))) {
+            if (Files.isExecutable(Path.of(directory, command))) return true;
+        }
+        return false;
+    }
+
+    private boolean waitForPlayer() {
+        for (int attempt = 0; attempt < 10; attempt++) {
+            if (run("playerctl", "status").isPresent()) return true;
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException error) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
     }
 
     private String action(String action) {
