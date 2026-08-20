@@ -1,0 +1,18 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Assistant Linux
+GenericName=Assistant de bureau
+Comment=Launcher et gestionnaire système Linux
+Exec=__ASSISTANT_DIR__/assistant-launcher.sh
+Icon=assistant-linux
+Terminal=false
+StartupNotify=true
+StartupWMClass=Assistant
+Categories=Utility;
+Keywords=launcher;terminal;system;files;
+Actions=background;
+
+[Desktop Action background]
+Name=Lancer en arrière-plan
+Exec=__ASSISTANT_DIR__/assistant-launcher.sh --background
