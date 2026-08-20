@@ -5,7 +5,7 @@ pkgrel=1
 pkgdesc='Assistant de bureau Linux en Java et Swing'
 arch=('x86_64' 'aarch64')
 url='https://github.com/ZekryOne/Ze-ui'
-depends=('java-runtime>=21' 'playerctl' 'xdg-utils' 'hicolor-icon-theme')
+depends=('java-runtime>=21' 'playerctl' 'procps-ng' 'xdg-utils' 'hicolor-icon-theme')
 makedepends=('git' 'java-environment>=21')
 optdepends=('spotify: lecteur musical contrôlé via MPRIS'
             'spicetify-cli: alternative pour lancer Spotify')

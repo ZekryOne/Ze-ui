@@ -65,11 +65,13 @@ public final class AssistantEngine {
     private String musicCommand(List<String> arguments) {
         if (arguments.isEmpty() || arguments.contains("status")) {
             String status = music.status();
-            return status.equals("UNAVAILABLE") ? music.installHint() : status + "\n" + music.metadata();
+            if (status.equals("PLAYERCTL_MISSING")) return music.installHint();
+            return status.equals("UNAVAILABLE") ? "Aucun lecteur MPRIS détecté." : status + "\n" + music.metadata();
         }
         return switch (arguments.getFirst().toLowerCase()) {
             case "play" -> music.play();
-            case "pause", "play-pause" -> music.playPause();
+            case "pause", "stop" -> music.stop();
+            case "play-pause" -> music.playPause();
             case "next", "suivant" -> music.next();
             case "previous", "prev", "precedent" -> music.previous();
             case "volume" -> music.volume();

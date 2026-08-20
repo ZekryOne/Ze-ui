@@ -7,6 +7,7 @@ pkgbase = assistant-linux
 	arch = aarch64
 	depends = java-runtime>=21
 	depends = playerctl
+	depends = procps-ng
 	depends = xdg-utils
 	depends = hicolor-icon-theme
 	makedepends = git

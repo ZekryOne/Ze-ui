@@ -87,7 +87,7 @@ Installez le composant système si nécessaire :
 sudo apt install playerctl
 ```
 
-Les commandes disponibles sont `music status`, `music play-pause`, `music previous`, `music next`, `music volume`, `music volume-up`, `music volume-down` et `music volume-set <0-100>`.
+Les commandes disponibles sont `music status`, `music play`, `music stop`, `music play-pause`, `music previous`, `music next`, `music volume`, `music volume-up`, `music volume-down` et `music volume-set <0-100>`. `music play` lance Spotify uniquement si aucun lecteur n'est déjà actif ; `music stop` met la musique en pause sans fermer Spotify.
 
 La console affiche aussi une rangée de favoris. Les boutons par défaut lancent Firefox, Spotify, Nemo et le terminal. Le bouton `+` permet d'ajouter une application ; la liste est conservée dans `~/.config/assistant/ui.properties`.
 
