@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public final class MusicService {
     public String status() {
+        if (!commandAvailable("playerctl")) return "PLAYERCTL_MISSING";
         return run("playerctl", "status").orElse("UNAVAILABLE");
     }
 
@@ -21,13 +22,18 @@ public final class MusicService {
         return action("play-pause");
     }
 
+    public String stop() {
+        if (!commandAvailable("playerctl")) return installHint();
+        return action("pause");
+    }
+
     public String play() {
         if (!commandAvailable("playerctl")) return installHint();
         if (run("playerctl", "status").isEmpty()) {
             Optional<List<String>> player = installedPlayer();
             if (player.isEmpty()) return playerHint();
             try {
-                new ProcessBuilder(player.get()).start();
+                if (!processRunning("spotify")) new ProcessBuilder(player.get()).start();
                 if (!waitForPlayer()) return "Spotify a été lancé, mais MPRIS n'est pas encore disponible.";
             } catch (IOException error) {
                 return "Impossible de lancer Spotify : " + error.getMessage();
@@ -45,13 +51,15 @@ public final class MusicService {
     }
 
     public String volume() {
+        if (!commandAvailable("playerctl")) return installHint();
         return run("playerctl", "volume").map(value -> "Volume : " + Math.round(Double.parseDouble(value) * 100) + "%")
-                .orElse(installHint());
+            .orElse("Aucun lecteur MPRIS détecté.");
     }
 
     public String changeVolume(int percentage) {
+        if (!commandAvailable("playerctl")) return installHint();
         Optional<String> current = run("playerctl", "volume");
-        if (current.isEmpty()) return installHint();
+        if (current.isEmpty()) return "Aucun lecteur MPRIS détecté.";
         try {
             double next = Math.max(0, Math.min(1, Double.parseDouble(current.get()) + percentage / 100.0));
             run("playerctl", "volume", String.format(java.util.Locale.ROOT, "%.2f", next));
@@ -63,7 +71,7 @@ public final class MusicService {
 
     public String installHint() {
         return "playerctl est requis pour contrôler Spotify via MPRIS.\n"
-                + "Installation : sudo apt install playerctl";
+                + "Installez-le avec le gestionnaire de paquets de votre distribution.";
     }
 
     private String playerHint() {
@@ -100,9 +108,13 @@ public final class MusicService {
         return false;
     }
 
+    private boolean processRunning(String process) {
+        return run("pgrep", "-x", process).isPresent();
+    }
+
     private String action(String action) {
         return run("playerctl", action).isPresent() ? "Commande musicale envoyée : " + action
-                : installHint();
+                : "Aucun lecteur MPRIS détecté.";
     }
 
     private Optional<String> run(String... command) {

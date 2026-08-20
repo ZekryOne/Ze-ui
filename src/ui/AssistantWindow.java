@@ -264,10 +264,11 @@ public final class AssistantWindow extends JFrame {
         display.add(hint);
         panel.add(display, BorderLayout.CENTER);
 
-        JPanel controls = new JPanel(new GridLayout(1, 5, 8, 0));
+        JPanel controls = new JPanel(new GridLayout(1, 6, 8, 0));
         controls.setOpaque(false);
         addMusicButton(controls, text.previous(), "music previous");
-        addMusicButton(controls, text.playPause(), "music play-pause");
+        addMusicButton(controls, text.play(), "music play");
+        addMusicButton(controls, text.stop(), "music stop");
         addMusicButton(controls, text.next(), "music next");
         addMusicButton(controls, "VOL -", "music volume-down");
         addMusicButton(controls, "VOL +", "music volume-up");
