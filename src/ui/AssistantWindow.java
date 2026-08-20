@@ -9,7 +9,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -347,6 +349,12 @@ public final class AssistantWindow extends JFrame {
         for (String favorite : preferences.favorites()) {
             JButton button = button(favorite.toUpperCase());
             button.addActionListener(event -> runFavorite(favorite));
+            button.setToolTipText("Clic droit pour supprimer");
+            JPopupMenu menu = new JPopupMenu();
+            JMenuItem remove = new JMenuItem("Supprimer");
+            remove.addActionListener(event -> removeFavorite(favorite));
+            menu.add(remove);
+            button.setComponentPopupMenu(menu);
             buttons.add(button);
         }
         JButton add = button("+");
@@ -368,6 +376,13 @@ public final class AssistantWindow extends JFrame {
         if (value == null || value.isBlank()) return;
         java.util.ArrayList<String> favorites = new java.util.ArrayList<>(preferences.favorites());
         favorites.add(value.trim());
+        preferences.favorites(favorites);
+        rebuild();
+    }
+
+    private void removeFavorite(String favorite) {
+        java.util.ArrayList<String> favorites = new java.util.ArrayList<>(preferences.favorites());
+        favorites.remove(favorite);
         preferences.favorites(favorites);
         rebuild();
     }
